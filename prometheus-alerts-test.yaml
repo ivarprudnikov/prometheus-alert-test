@@ -1,0 +1,20 @@
+rule_files:
+- 'prometheus-alerts.yaml'
+tests:
+- name: 'alert HighCPU24 should be fired'
+  interval: 1m # every minute use one value in series
+  input_series: # simulate the data (starts at 0)
+    - series: node_cpu_seconds_total{instance="10.0.2.9", region="us-east-1"}
+      values: '0+50x1500' # every minute 50sec of available 60sec CPU time is used, load is at 83%, it continues for 1500 minutes
+  alert_rule_test:
+    - alertname: HighCPU24
+      eval_time: 500m # 500th minute from start
+      exp_alerts: # nothing yet
+    - alertname: HighCPU24
+      eval_time: 1450m # after 24hr from start
+      exp_alerts:
+        - exp_labels:
+            severity: page
+            instance: 10.0.2.9
+          exp_annotations:
+            summary: High CPU usage on 10.0.2.9

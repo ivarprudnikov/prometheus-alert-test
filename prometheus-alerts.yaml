@@ -1,0 +1,10 @@
+groups:
+- name: core
+  rules:
+  - alert: HighCPU24
+    expr: max by (instance) (irate(node_cpu_seconds_total{region="us-east-1"}[1m])) > 0.8
+    for: 24h
+    labels:
+      severity: page
+    annotations:
+      summary: High CPU usage on {{$labels.instance}}
